@@ -23,7 +23,9 @@ public:
     }
     ~DefaultRefCounter()
     {
-        counter->fetch_sub(1);
+        auto val = counter->fetch_sub(1);
+        if (val == 1)
+            delete counter;
         debug_log();
     }
     uint64_t val() { return counter->load(); }
@@ -36,6 +38,7 @@ private:
     std::atomic_uint64_t *counter;
 };
 
+// TODO: Handle static array types
 template <typename T>
 class NonArrayAllocator
 {
@@ -56,8 +59,6 @@ template <typename T, template <typename> typename AllocatorTemplate = NonArrayA
 class SharedPtr
 {
 public:
-    // friend class PtrTransfer;
-
     SharedPtr() : val(nullptr) {}
     explicit SharedPtr(T *val) : val(val) {}
     SharedPtr<T, AllocatorTemplate, RefCounter> &operator=(T *val)
@@ -94,19 +95,9 @@ public:
         other.val = tmp;
     }
 
-    // SharedPtr<T> &operator=(PtrTransfer<T> &wrapped_val);
-
 private:
-    // We need an rvalue only wrapper to handle the copying of
-    // the pointer across a function call.
-    // struct PtrTransfer
-    // {
-    //     T *val;
-    //     PtrTransfer(SharedPtr<T> &return_val);
-    // };
-
-    RefCounter counter = 1; // default init to 1
+    // if this counter initializer is reached,
+    // then this is the first instance of the reference.
+    RefCounter counter{1};
     T *val;
-
-    // Lock these away for now from modification
 };

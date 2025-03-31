@@ -84,4 +84,22 @@ int main(int argc, char *argv[])
     }
 
     std::cout << *base_sample << std::endl;
+
+    Sample raw_pair_sample[2] = {
+        {1, "_"},
+        {2, "@"},
+    };
+    // this simple SharedPtr doesn't handle array types
+    // This doesn't work (cannot convert fwded args Sample(&)[2] to Sample)
+    // using sp2_t = SharedPtr<Sample[2]>;
+    // sp2_t pair_sample(raw_pair_sample);
+    // (*pair_sample)[0] = Sample(1, "one");
+    // (*pair_sample)[1] = Sample(2, "two");
+    // {
+    //     std::vector<sp2_t> psamples;
+    //     for (size_t i = 0; i < 10; ++i)
+    //     {
+    //         psamples.emplace_back(pair_sample);
+    //     }
+    // }
 }
