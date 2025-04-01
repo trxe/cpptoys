@@ -1,5 +1,7 @@
 # cpp toys
 
+Please build using `-std=c++23`.
+
 ## Synchronization
 
 Implement synchronization variables with only atomics.
